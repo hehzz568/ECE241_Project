@@ -28,16 +28,28 @@ module game_logic(
     end
 
     function automatic [63:0] rotate90(input [63:0] b);
-        integer r,c;
-        reg [63:0] out;
-        begin
-            out = 64'b0;
-            for (r=0;r<8;r=r+1)
-                for (c=0;c<8;c=c+1)
-                    if (b[r*8+c]) out[(c)*8+(7-r)] = 1'b1;
-            rotate90 = out;
-        end
-    endfunction
+    integer r, c;
+    reg [63:0] out;
+    reg [6:0] idx_old, idx_new;
+		begin
+        out = 64'b0;
+
+        // Rotate within the top-left 4×4 area of the 8×8 block
+			for (r = 0; r < 4; r = r + 1) begin
+					for (c = 0; c < 4; c = c + 1) begin
+						idx_old = r*8 + c;
+						if (b[idx_old]) begin
+                    // 4×4 rotation: (r, c) -> (c, 3 - r)
+                    idx_new = (c)*8 + (3 - r);
+                    out[idx_new] = 1'b1;
+						end
+					end
+			end
+
+			rotate90 = out;
+		end
+		endfunction
+
 
     function automatic can_place(
         input [63:0] b, input [2:0] x, input [2:0] y, input [63:0] grid
@@ -109,66 +121,125 @@ module game_logic(
     reg [7:0]  gain;
 
     always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            game_grid<=0; score<=0; game_over<=0;
-            block1<=nb1; block2<=nb2; block3<=nb3;
-            block1_x<=0; block1_y<=0; block2_x<=3; block2_y<=0; block3_x<=0; block3_y<=3;
-        end else begin
+    if (reset) begin
+        game_grid <= 64'b0;
+        score     <= 8'b0;
+        game_over <= 1'b0;
 
-            if (sel==1) begin
-                if (move_left  && block1_x>0) block1_x<=block1_x-1;
-                if (move_right && block1_x<7) block1_x<=block1_x+1;
-                if (move_up    && block1_y>0) block1_y<=block1_y-1;
-                if (move_down  && block1_y<7) block1_y<=block1_y+1;
-                if (rotate_block) block1 <= rotate90(block1);
+        // start with no blocks, generator + gen_new will fill them
+        block1    <= 64'b0;
+        block2    <= 64'b0;
+        block3    <= 64'b0;
 
-                if (place_block && can_place(block1,block1_x,block1_y,game_grid)) begin
-                    tmp_grid     = paint(block1,block1_x,block1_y,game_grid); // blocking 
-                    clear_lines(tmp_grid, cleared_grid, gain);
-                    game_grid   <= cleared_grid;  
-                    score       <= score + gain;
-                    block1      <= 64'b0;
-                end
-            end else if (sel==2) begin
-                if (move_left  && block2_x>0) block2_x<=block2_x-1;
-                if (move_right && block2_x<7) block2_x<=block2_x+1;
-                if (move_up    && block2_y>0) block2_y<=block2_y-1;
-                if (move_down  && block2_y<7) block2_y<=block2_y+1;
-                if (rotate_block) block2 <= rotate90(block2);
+        block1_x  <= 3'd0; block1_y <= 3'd0;
+        block2_x  <= 3'd3; block2_y <= 3'd0;
+        block3_x  <= 3'd0; block3_y <= 3'd3;
+    end else begin
 
-                if (place_block && can_place(block2,block2_x,block2_y,game_grid)) begin
-                    tmp_grid   = paint(block2,block2_x,block2_y,game_grid);
-                    clear_lines(tmp_grid, cleared_grid, gain);
-                    game_grid <= cleared_grid;
-                    score     <= score + gain;
-                    block2    <= 64'b0;
-                end
-            end else begin // sel==3
-                if (move_left  && block3_x>0) block3_x<=block3_x-1;
-                if (move_right && block3_x<7) block3_x<=block3_x+1;
-                if (move_up    && block3_y>0) block3_y<=block3_y-1;
-                if (move_down  && block3_y<7) block3_y<=block3_y+1;
-                if (rotate_block) block3 <= rotate90(block3);
+                if (sel==1) begin
+            // use can_place with empty grid so movement respects block size
+            if (move_left  && block1_x > 0 &&
+                can_place(block1, block1_x-3'd1, block1_y, 64'b0))
+                block1_x <= block1_x-3'd1;
 
-                if (place_block && can_place(block3,block3_x,block3_y,game_grid)) begin
-                    tmp_grid   = paint(block3,block3_x,block3_y,game_grid);
-                    clear_lines(tmp_grid, cleared_grid, gain);
-                    game_grid <= cleared_grid;
-                    score     <= score + gain;
-                    block3    <= 64'b0;
-                end
+            if (move_right && block1_x < 7 &&
+                can_place(block1, block1_x+3'd1, block1_y, 64'b0))
+                block1_x <= block1_x+3'd1;
+
+            if (move_up    && block1_y > 0 &&
+                can_place(block1, block1_x, block1_y-3'd1, 64'b0))
+                block1_y <= block1_y-3'd1;
+
+            if (move_down  && block1_y < 7 &&
+                can_place(block1, block1_x, block1_y+3'd1, 64'b0))
+                block1_y <= block1_y+3'd1;
+
+            if (rotate_block &&
+                can_place(rotate90(block1), block1_x, block1_y, 64'b0))
+                block1 <= rotate90(block1);
+
+            if (place_block && can_place(block1,block1_x,block1_y,game_grid)) begin
+                tmp_grid   = paint(block1,block1_x,block1_y,game_grid);
+                clear_lines(tmp_grid, cleared_grid, gain);
+                game_grid <= cleared_grid;  
+                score     <= score + gain;
+                block1    <= 64'b0;
             end
 
+        end else if (sel==2) begin
+            if (move_left  && block2_x > 0 &&
+                can_place(block2, block2_x-3'd1, block2_y, 64'b0))
+                block2_x <= block2_x-3'd1;
 
-            if (gen_new) begin
-                block1<=nb1; block2<=nb2; block3<=nb3;
-                block1_x<=0; block1_y<=0; block2_x<=3; block2_y<=0; block3_x<=0; block3_y<=3;
+            if (move_right && block2_x < 7 &&
+                can_place(block2, block2_x+3'd1, block2_y, 64'b0))
+                block2_x <= block2_x+3'd1;
 
-                if (!can_place(nb1,0,0,game_grid) &&
-                    !can_place(nb2,3,0,game_grid) &&
-                    !can_place(nb3,0,3,game_grid))
-                    game_over<=1;
+            if (move_up    && block2_y > 0 &&
+                can_place(block2, block2_x, block2_y-3'd1, 64'b0))
+                block2_y <= block2_y-3'd1;
+
+            if (move_down  && block2_y < 7 &&
+                can_place(block2, block2_x, block2_y+3'd1, 64'b0))
+                block2_y <= block2_y+3'd1;
+
+            if (rotate_block &&
+                can_place(rotate90(block2), block2_x, block2_y, 64'b0))
+                block2 <= rotate90(block2);
+
+            if (place_block && can_place(block2,block2_x,block2_y,game_grid)) begin
+                tmp_grid   = paint(block2,block2_x,block2_y,game_grid);
+                clear_lines(tmp_grid, cleared_grid, gain);
+                game_grid <= cleared_grid;
+                score     <= score + gain;
+                block2    <= 64'b0;
+            end
+
+        end else begin // sel==3
+            if (move_left  && block3_x > 0 &&
+                can_place(block3, block3_x-3'd1, block3_y, 64'b0))
+                block3_x <= block3_x-3'd1;
+
+            if (move_right && block3_x < 7 &&
+                can_place(block3, block3_x+3'd1, block3_y, 64'b0))
+                block3_x <= block3_x+3'd1;
+
+            if (move_up    && block3_y > 0 &&
+                can_place(block3, block3_x, block3_y-3'd1, 64'b0))
+                block3_y <= block3_y-3'd1;
+
+            if (move_down  && block3_y < 7 &&
+                can_place(block3, block3_x, block3_y+3'd1, 64'b0))
+                block3_y <= block3_y+3'd1;
+
+            if (rotate_block &&
+                can_place(rotate90(block3), block3_x, block3_y, 64'b0))
+                block3 <= rotate90(block3);
+
+            if (place_block && can_place(block3,block3_x,block3_y,game_grid)) begin
+                tmp_grid   = paint(block3,block3_x,block3_y,game_grid);
+                clear_lines(tmp_grid, cleared_grid, gain);
+                game_grid <= cleared_grid;
+                score     <= score + gain;
+                block3    <= 64'b0;
             end
         end
-    end
+
+
+        if (gen_new) begin
+            block1   <= nb1; 
+            block2   <= nb2; 
+            block3   <= nb3;
+            block1_x <= 3'd0; block1_y <= 3'd0;
+            block2_x <= 3'd3; block2_y <= 3'd0;
+            block3_x <= 3'd0; block3_y <= 3'd3;
+
+            if (!can_place(nb1,0,0,game_grid) &&
+                !can_place(nb2,3,0,game_grid) &&
+                !can_place(nb3,0,3,game_grid))
+                game_over <= 1'b1;
+				end
+			end
+		end
+
 endmodule

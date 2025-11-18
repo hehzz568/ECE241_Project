@@ -7,17 +7,6 @@ set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEMA5F31C6
 set_global_assignment -name TOP_LEVEL_ENTITY block_blast_top
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-set_global_assignment -name VERILOG_FILE src/vga_timing_640x480.v
-set_global_assignment -name VERILOG_FILE src/vga_controller.v
-set_global_assignment -name VERILOG_FILE src/ps2_kbd_adapter.v
-set_global_assignment -name VERILOG_FILE src/PS2_cores/PS2_Controller.v
-set_global_assignment -name VERILOG_FILE src/hex7.v
-set_global_assignment -name VERILOG_FILE src/game_logic.v
-set_global_assignment -name VERILOG_FILE src/clock_divider.v
-set_global_assignment -name VERILOG_FILE src/block_generator.v
-set_global_assignment -name VERILOG_FILE src/block_blast_top.v
-set_global_assignment -name VERILOG_FILE src/PS2_cores/Altera_UP_PS2_Data_In.v
-set_global_assignment -name VERILOG_FILE src/PS2_cores/Altera_UP_PS2_Command_Out.v
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
@@ -966,4 +955,17 @@ set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
+set_global_assignment -name MIF_FILE //VSRV1/A.Homes\$/hezhen11/Downloads/block_blast_4/block_blast_4/src/connect8_title.mif
+set_global_assignment -name VERILOG_FILE src/vga_timing_640x480.v
+set_global_assignment -name VERILOG_FILE src/vga_controller.v
+set_global_assignment -name VERILOG_FILE src/ps2_kbd_adapter.v
+set_global_assignment -name VERILOG_FILE src/PS2_cores/PS2_Controller.v
+set_global_assignment -name VERILOG_FILE src/hex7.v
+set_global_assignment -name VERILOG_FILE src/game_logic.v
+set_global_assignment -name VERILOG_FILE src/clock_divider.v
+set_global_assignment -name VERILOG_FILE src/block_generator.v
+set_global_assignment -name VERILOG_FILE src/block_blast_top.v
+set_global_assignment -name VERILOG_FILE src/PS2_cores/Altera_UP_PS2_Data_In.v
+set_global_assignment -name VERILOG_FILE src/PS2_cores/Altera_UP_PS2_Command_Out.v
+set_global_assignment -name QIP_FILE //VSRV1/A.Homes\$/hezhen11/Downloads/block_blast_4/block_blast_4/src/title_rom.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

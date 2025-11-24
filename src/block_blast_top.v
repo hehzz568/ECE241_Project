@@ -57,10 +57,14 @@ module block_blast_top (
 
     // Event toggles in 50 MHz domain
     reg tgl_L, tgl_R, tgl_U, tgl_D, tgl_P, tgl_ROT, tgl_1, tgl_2, tgl_3;
+	 reg tgl_any;
+	 
     always @(posedge CLOCK_50 or posedge reset) begin
         if (reset) begin
             {tgl_L,tgl_R,tgl_U,tgl_D,tgl_P,tgl_ROT,tgl_1,tgl_2,tgl_3} <= 9'b0;
+				tgl_any <= 1'b0;
         end else if (make_pulse) begin
+				tgl_any <= ~tgl_any;
             case (scan_code)
                 8'h6B, 8'h1C: tgl_L   <= ~tgl_L;    // Left  / 'A'
                 8'h74, 8'h23: tgl_R   <= ~tgl_R;    // Right / 'D'
@@ -75,12 +79,15 @@ module block_blast_top (
             endcase
         end
     end
-
+		
     // Synchronize toggles into clk_game and edge-detect (one-tick pulses)
-    reg [1:0] sL, sR, sU, sD, sP, sROT, s1_sync, s2_sync, s3_sync;
+    reg [1:0] sL, sR, sU, sD, sP, sROT, s1_sync, s2_sync, s3_sync, sAny;
     always @(posedge clk_game or posedge reset) begin
         if (reset) begin
-            sL<=0; sR<=0; sU<=0; sD<=0; sP<=0; sROT<=0; s1_sync<=0; s2_sync<=0; s3_sync<=0;
+            sL<=0; sR<=0; sU<=0; sD<=0; 
+				sP<=0; sROT<=0; 
+				s1_sync<=0; s2_sync<=0; s3_sync<=0;
+				sAny <= 0;
         end else begin
             sL      <= {sL[0],      tgl_L   };
             sR      <= {sR[0],      tgl_R   };
@@ -91,6 +98,7 @@ module block_blast_top (
             s1_sync <= {s1_sync[0], tgl_1   };
             s2_sync <= {s2_sync[0], tgl_2   };
             s3_sync <= {s3_sync[0], tgl_3   };
+				sAny <= {sAny[0], tgl_any};
         end
     end
 
@@ -103,6 +111,7 @@ module block_blast_top (
     wire sel1      = s1_sync[1] ^ s1_sync[0];
     wire sel2      = s2_sync[1] ^ s2_sync[0];
     wire sel3      = s3_sync[1] ^ s3_sync[0];
+	 wire any_key = sAny[1] ^ sAny[0];
 
 	 
 	 // title image
@@ -112,9 +121,7 @@ module block_blast_top (
 	 always @(posedge clk_game or posedge reset) begin
 		if (reset)
 			show_title <= 1'b1;
-		else if (show_title &&
-					(move_l | move_r | move_u | move_d |
-					place | rotate | sel1 | sel2 | sel3))
+		else if (show_title && any_key)
 			show_title <= 1'b0;
 		end
 

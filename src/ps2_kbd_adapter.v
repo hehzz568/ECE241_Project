@@ -35,9 +35,9 @@ module ps2_kbd_adapter(
             send_cmd <= 1'b0;
             cmd_byte <= 8'hF4;
         end else case (ist)
-            S_IDLE:  begin send_cmd<=1'b1; ist<=S_PULSE; end 
+            S_IDLE:  begin send_cmd<=1'b1; ist<=S_PULSE; end
             S_PULSE: begin send_cmd<=1'b0; ist<=S_WAIT;  end
-            S_WAIT:  if (cmd_sent || cmd_timeout) ist<=S_DONE; // Wait for either success or timeout
+            S_WAIT:  if (cmd_sent || cmd_timeout) ist<=S_DONE;
             default: ;
         endcase
     end
@@ -65,4 +65,3 @@ module ps2_kbd_adapter(
         end
     end
 endmodule
-

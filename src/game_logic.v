@@ -67,7 +67,7 @@ module game_logic(
         end
     endfunction
 
-	 function automatic check_remaining_space(
+	 function automatic check_remaining_space( // check if the block can be placed at any remaining place
 			input [63:0] b, input [63:0] grid
 	 );
 			integer x,y;

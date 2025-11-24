@@ -57,14 +57,25 @@ module vga_controller(
         endcase
     end
 
+	 
+	 // board
+	 wire [9:0] board_x0 = 10'd120; // left
+	 wire [9:0] board_y0 = 10'd40; // top
+	 wire [9:0] board_size = 10'd400; // width, height
+	 
+	 wire in_board = (x >= board_x0) && (x < board_x0 + board_size) && (y >= board_y0) && (y < board_y0 + board_size);
+	 
+	 wire [9:0] rel_x = x - board_x0;
+	 wire [9:0] rel_y = y - board_y0;
+	 
     // 8x8, each 80x60
-    wire [2:0] cell_x = x/80;
-    wire [2:0] cell_y = y/60;
-    wire [6:0] idx    = cell_y*8 + cell_x;
+    wire [2:0] cell_x = rel_x/10'd50;
+    wire [2:0] cell_y = rel_y/10'd50;
+    wire [6:0] idx    = cell_y*7'd8 + cell_x;
 
     // block on line
-    wire on_vline = (x%80==0);
-    wire on_hline = (y%60==0);
+    wire on_vline = in_board && ((rel_x == 10'd0) || (rel_x == 10'd50) || (rel_x == 10'd100) || (rel_x == 10'd150) || (rel_x == 10'd200) || (rel_x == 10'd250) || (rel_x == 10'd300) || (rel_x == 10'd350) || (rel_x == 10'd399));
+    wire on_hline = in_board && ((rel_y == 10'd0) || (rel_y == 10'd50) || (rel_y == 10'd100) || (rel_y == 10'd150) || (rel_y == 10'd200) || (rel_y == 10'd250) || (rel_y == 10'd300) || (rel_y == 10'd350) || (rel_y == 10'd399));
     wire on_grid  = on_vline || on_hline;
 
     // shadow for these 3
@@ -85,10 +96,10 @@ module vga_controller(
         end
     endfunction
 
-    wire grid_on = game_grid[idx];
-    wire blk1_on = inside_block(block1,block1_x,block1_y,cell_x,cell_y);
-    wire blk2_on = inside_block(block2,block2_x,block2_y,cell_x,cell_y);
-    wire blk3_on = inside_block(block3,block3_x,block3_y,cell_x,cell_y);
+    wire grid_on = in_board && game_grid[idx];
+    wire blk1_on = in_board && inside_block(block1,block1_x,block1_y,cell_x,cell_y);
+    wire blk2_on = in_board && inside_block(block2,block2_x,block2_y,cell_x,cell_y);
+    wire blk3_on = in_board && inside_block(block3,block3_x,block3_y,cell_x,cell_y);
 
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -111,7 +122,7 @@ module vga_controller(
                 {vga_r,vga_g,vga_b} <= {8'h80,8'hC0,8'hFF}; // pending: blue
             end
             else if (on_grid) begin
-                {vga_r,vga_g,vga_b} <= {8'h40,8'h40,8'h40}; // line: grey
+                {vga_r,vga_g,vga_b} <= {8'hFF,8'hFF,8'hFF}; // line: white
             end
             else begin
                 {vga_r,vga_g,vga_b} <= 24'h000000;          // background: black

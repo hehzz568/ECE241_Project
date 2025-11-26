@@ -1,10 +1,10 @@
-// Clock Divider Module
+// Clock Divider
 module clock_divider #(
     parameter DIVISOR = 2
 ) (
     input  wire clk_in,
     input  wire reset,
-    output reg  clk_out
+    output reg clk_out
 );
 
     localparam COUNTER_WIDTH = $clog2(DIVISOR);

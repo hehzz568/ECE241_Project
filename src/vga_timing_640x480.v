@@ -1,8 +1,8 @@
 // vga_timing_640x480.v
 module vga_timing_640x480(
     input  wire clk, input wire reset,
-    output reg  [9:0] x,      // 0..639
-    output reg  [9:0] y,      // 0..479
+    output reg  [9:0] x,
+    output reg  [9:0] y,
     output wire       hs,     
     output wire       vs,     
     output wire       blank_n 

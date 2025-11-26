@@ -3,27 +3,27 @@ module ps2_kbd_adapter(
     input  wire reset,        // active-high
     inout  wire PS2_CLK,
     inout  wire PS2_DAT,
-    output reg  [7:0] key_code,
-    output reg        make_pulse
+    output reg [7:0] key_code,
+    output reg make_pulse
 );
 
     wire [7:0] rcv_data;
-    wire       rcv_en;
-    reg        send_cmd;
+    wire rcv_en;
+    reg send_cmd;
     reg  [7:0] cmd_byte;
-    wire       cmd_sent, cmd_timeout;
+    wire cmd_sent, cmd_timeout;
 
     PS2_Controller U_PS2 (
-        .CLOCK_50(clk),
-        .reset(reset),
-        .PS2_CLK(PS2_CLK),
-        .PS2_DAT(PS2_DAT),
-        .received_data(rcv_data),
-        .received_data_en(rcv_en),
-        .send_command(send_cmd),
-        .the_command(cmd_byte),
-        .command_was_sent(cmd_sent),
-        .error_communication_timed_out(cmd_timeout)
+        .CLOCK_50 (clk),
+        .reset (reset),
+        .PS2_CLK (PS2_CLK),
+        .PS2_DAT (PS2_DAT),
+        .received_data (rcv_data),
+        .received_data_en (rcv_en),
+        .send_command (send_cmd),
+        .the_command (cmd_byte),
+        .command_was_sent (cmd_sent),
+        .error_communication_timed_out (cmd_timeout)
     );
 
 

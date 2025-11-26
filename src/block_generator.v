@@ -18,16 +18,16 @@ module block_generator(
         input [4:0] sel;
         begin
             case (sel)
-                5'd0:  shape = 64'h0000000000000301; // small L
-                5'd1:  shape = 64'h0000000000000103;
-                5'd2:  shape = 64'h0000000000000302;
-                5'd3:  shape = 64'h0000000000000203;
-                5'd4:  shape = 64'h0000000000030101; // big L
-                5'd5:  shape = 64'h0000000000000107;
-                5'd6:  shape = 64'h0000000000020203;
-                5'd7:  shape = 64'h0000000000000704;
-                5'd8:  shape = 64'h0000000000000303; // 2x2
-                5'd9:  shape = 64'h0000000000070707; // 3x3
+                5'd0: shape = 64'h0000000000000301; // small L
+                5'd1: shape = 64'h0000000000000103;
+                5'd2: shape = 64'h0000000000000302;
+                5'd3: shape = 64'h0000000000000203;
+                5'd4: shape = 64'h0000000000030101; // big L
+                5'd5: shape = 64'h0000000000000107;
+                5'd6: shape = 64'h0000000000020203;
+                5'd7: shape = 64'h0000000000000704;
+                5'd8: shape = 64'h0000000000000303; // 2x2
+                5'd9: shape = 64'h0000000000070707; // 3x3
                 5'd10: shape = 64'h0000000000000007; // 1x3
                 5'd11: shape = 64'h0000000000010101; // 3x1
                 5'd12: shape = 64'h000000000000000F; // 1x4
@@ -66,10 +66,10 @@ module block_generator(
         end else if (generate_new) begin
 
             block1 <= shape(lfsr[4:0]);
-            block2 <= shape(lfsr[9:5]); 
-            block3 <= shape(lfsr[14:10]);  // randomly select three blocks
+            block2 <= shape(lfsr[9:5]);
+            block3 <= shape(lfsr[14:10]);
         end
-    end   
+    end
 
 
 endmodule

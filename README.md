@@ -1,6 +1,6 @@
 # CONNECT8
 *A small Verilog game project on the DE1-SoC board, inspired by [Block-Blast](https://www.hungrystudio.com/games)*  
-by **Alan He** and [**Harry Zhang**](https://github.com/po8onthetrack)  for ECE241 @ University of Toronto， Supervised by [**Prof. Jason Anderson**](https://janders.eecg.utoronto.ca/)
+by **Alan He** and [**Harry Zhang**](https://github.com/po8onthetrack)  for ECE241 @ University of Toronto, Supervised by [**Prof. Jason Anderson**](https://janders.eecg.utoronto.ca/)
 
 _Last updated: 2025-11-26_
 
